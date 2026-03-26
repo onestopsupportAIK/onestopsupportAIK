@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Task Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            background: #f4f6f8;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, select, button {
+            padding: 8px;
+            margin: 5px;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .completed {
+            background-color: #c8f7c5;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Team Task Dashboard</h1>
+
+<div class="container">
+    <h3>Add New Task</h3>
+    <input type="text" id="taskName" placeholder="Task Name">
+    <input type="text" id="assignedTo" placeholder="Assign To">
+    <button onclick="addTask()">Add Task</button>
+
+    <table id="taskTable">
+        <tr>
+            <th>Task</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </table>
+
+    <h3>Productivity Score</h3>
+    <div id="scoreBoard"></div>
+</div>
+
+<script>
+    let tasks = [];
+
+    function addTask() {
+        let taskName = document.getElementById("taskName").value;
+        let assignedTo = document.getElementById("assignedTo").value;
+
+        if(taskName === "" || assignedTo === "") {
+            alert("Enter task and name");
+            return;
+        }
+
+        let task = {
+            name: taskName,
+            person: assignedTo,
+            status: "Pending"
+        };
+
+        tasks.push(task);
+        displayTasks();
+        updateScore();
+    }
+
+    function displayTasks() {
+        let table = document.getElementById("taskTable");
+        table.innerHTML = `
+        <tr>
+            <th>Task</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>`;
+
+        tasks.forEach((task, index) => {
+            table.innerHTML += `
+            <tr class="${task.status === 'Completed' ? 'completed' : ''}">
+                <td>${task.name}</td>
+                <td>${task.person}</td>
+                <td>${task.status}</td>
+                <td>
+                    <button onclick="completeTask(${index})">Complete</button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function completeTask(index) {
+        tasks[index].status = "Completed";
+        displayTasks();
+        updateScore();
+    }
+
+    function updateScore() {
+        let scores = {};
+
+        tasks.forEach(task => {
+            if(!scores[task.person]) {
+                scores[task.person] = {completed:0, total:0};
+            }
+            scores[task.person].total++;
+            if(task.status === "Completed") {
+                scores[task.person].completed++;
+            }
+        });
+
+        let scoreBoard = document.getElementById("scoreBoard");
+        scoreBoard.innerHTML = "";
+
+        for(let person in scores) {
+            let score = Math.round((scores[person].completed / scores[person].total) * 100);
+            scoreBoard.innerHTML += `<p>${person}: ${score}% Productivity</p>`;
+        }
+    }
+</script>
+
+</body>
+</html>
